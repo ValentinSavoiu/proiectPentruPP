@@ -6,6 +6,9 @@ void save_image (char *, unsigned char *, unsigned int , unsigned int , unsigned
 
 unsigned char* read_linearize(char *fileName, unsigned char **header, unsigned int *W, unsigned int *H) {
     FILE *fin = fopen(fileName, "rb");
+    if (fin == NULL) {
+        return NULL;
+    }
     *header = (unsigned char *) malloc(header_size * sizeof(unsigned char));
     fread(*header, sizeof(unsigned char), header_size, fin); //asa da
     fseek(fin, 18, SEEK_SET);
