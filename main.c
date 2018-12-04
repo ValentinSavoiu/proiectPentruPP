@@ -13,8 +13,13 @@ int main() {
     printf("\nIntroduceti numele  fisierului in care se afla cele 2 chei secrete:");
     char *secret_key = (char*) malloc(30);
     scanf("%s30", secret_key);
-    encrypt(encryptionSource, encryptionDestination, secret_key);
-
+    int ok = encrypt(encryptionSource, encryptionDestination, secret_key);
+    if (ok == 0) {
+        printf("\nCriptarea s-a realizat cu succes");
+    }
+    else {
+        printf("\nEroare la criptare!");
+    }
     free(encryptionDestination);
     free(encryptionSource);
     free(secret_key);
@@ -28,7 +33,13 @@ int main() {
     printf("\nIntroduceti numele  fisierului in care se afla cele 2 chei secrete, aceleasi chei folosite pentru criptarea initiala a imaginii :");
     secret_key = (char*) malloc(30);
     scanf("%s30", secret_key);
-    decrypt(decryptionSource, decryptionDestination, secret_key);
+    ok = decrypt(decryptionSource, decryptionDestination, secret_key);
+    if (ok == 0) {
+        printf("\nDecriptarea s-a realizat cu succes");
+    }
+    else {
+        printf("\nEroare la decriptare!");
+    }
     free(decryptionSource);
     free(decryptionDestination);
     free(secret_key);
