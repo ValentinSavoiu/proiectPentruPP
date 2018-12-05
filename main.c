@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "random_number_generator.h"
 #include "fisiere_binare.h"
+#include "criptare.h"
 
 int main() {
     printf("Introduceti numele imaginii de criptat :");
@@ -31,7 +32,7 @@ int main() {
     char *decryptionDestination = (char*) malloc(30);
     scanf("%s30", decryptionDestination);
     printf("\nIntroduceti numele  fisierului in care se afla cele 2 chei secrete, aceleasi chei folosite pentru criptarea initiala a imaginii :");
-    secret_key = (char*) malloc(30);
+    secretKey = (char*) malloc(30);
     scanf("%s30", secretKey);
     ok = decrypt(decryptionSource, decryptionDestination, secretKey);
     if (ok == 0) {
