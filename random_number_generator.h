@@ -3,19 +3,19 @@
 
 unsigned int* xorshift32(unsigned int , unsigned int );
 
-unsigned int* make_random_permutation(unsigned int* random_numbers, unsigned int length) {
-    unsigned int *random_permutation = (unsigned int*) calloc(length, sizeof(unsigned int));
+unsigned int* make_random_permutation(unsigned int* randomNumbers, unsigned int length) {
+    unsigned int *randomPermutation = (unsigned int*) calloc(length, sizeof(unsigned int));
     for (unsigned int i = 0; i < length; ++i)
-        random_permutation[i] = i;
+        randomPermutation[i] = i;
     unsigned int i = 0;
     for (unsigned int k = length - 1; k > 0; k--) {
-        unsigned int r = random_numbers[i] % (k + 1);
+        unsigned int r = randomNumbers[i] % (k + 1);
         ++i;
-        unsigned int aux = random_permutation[r];
-        random_permutation[r] = random_permutation[k];
-        random_permutation[k] = aux;
+        unsigned int aux = randomPermutation[r];
+        randomPermutation[r] = randomPermutation[k];
+        randomPermutation[k] = aux;
     }
-    return random_permutation;
+    return randomPermutation;
 }
 
 unsigned int* xorshift32(unsigned int seed, unsigned int length) {
