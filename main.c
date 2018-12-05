@@ -42,6 +42,6 @@ int main() {
     }
     free(decryptionSource);
     free(decryptionDestination);
-    free(secret_key);
+    free(secretKey);
     return 0;
 }
