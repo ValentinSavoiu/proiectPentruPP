@@ -10,7 +10,12 @@ unsigned char* permute_image_by_permutation (unsigned char *image, unsigned int 
    return newImage;
 }
 
-double *chi_squared (unsigned char* image, unsigned int size) {
+double *chi_squared (char* fileName) {
+    unsigned int W, H;
+    unsigned char *header;
+    unsigned char *image = read_linearize(fileName, &header, &W, &H);
+    unsigned int size = W * H;
+
     unsigned int **frecv;
     frecv = (unsigned int **) malloc (3 * sizeof(unsigned int *));
 
@@ -28,6 +33,7 @@ double *chi_squared (unsigned char* image, unsigned int size) {
             chiSquared[k] += ( (f * f) / fmedie);
         }
     }
+    free (image);
     free (frecv);
     return chiSquared;
 
@@ -81,7 +87,7 @@ int encrypt(char *sourceFileName, char *destinationFileName, char *keyFileName) 
         printf("\nImaginea de criptat nu a fost gasita");
         return -1;
     }
-    double *chiSquared = chi_squared(image, W * H);
+    double *chiSquared = chi_squared(sourceFileName);
     printf("%f %f %f \n", chiSquared[2], chiSquared[1], chiSquared[0]);
     FILE *fin = fopen(keyFileName, "r");
     if (fin == NULL) {
@@ -98,9 +104,11 @@ int encrypt(char *sourceFileName, char *destinationFileName, char *keyFileName) 
     free(image);
     image = newImage;
     xor_encryption(image, W * H, randomNumbers + W * H - 1, SV);
-    chiSquared = chi_squared(image, W * H);
-    printf("%f %f %f \n", chiSquared[2], chiSquared[1], chiSquared[0]);
+
+
     save_image(destinationFileName, image, W, H, header);
+    chiSquared = chi_squared(destinationFileName);
+    printf("%f %f %f \n", chiSquared[2], chiSquared[1], chiSquared[0]);
     free(image);
     free(chiSquared);
     free(randomNumbers);
