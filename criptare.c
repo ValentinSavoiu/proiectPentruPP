@@ -26,7 +26,7 @@ double *chi_squared (unsigned char* image, unsigned int size) {
     for (unsigned int i = 0; i <= 255; ++i) {
         for (unsigned int k = 0; k < 3; ++k) {
             double f = fmedie - frecv[k][i];
-            chisquared[k] += ( (f * f) / fmedie);
+            chiSquared[k] += ( (f * f) / fmedie);
         }
     }
     free (frecv);
