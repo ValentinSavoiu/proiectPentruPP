@@ -5,4 +5,5 @@ TODO: all the bloody code for image editing and pattern matching
 TODO: camelcase la variabile, snakecase la functii
 TODO: inchide fisiere, foloseste valgrind
 TODO: folosesti enter
-TODO: un singur program
+//TODO: un singur program
+TODO: constante in ALL-CAPS
