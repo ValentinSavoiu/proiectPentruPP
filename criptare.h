@@ -10,7 +10,7 @@ unsigned char* permute_image_by_permutation (unsigned char *image, unsigned int 
    return newImage;
 }
 
-double *chi_squared (char* fileName) {
+double* chi_squared (char* fileName) {
     unsigned int W, H;
     unsigned char *header;
     unsigned char *image = read_linearize(fileName, &header, &W, &H);
@@ -43,7 +43,7 @@ void xor_encryption (unsigned char* image, unsigned int size, unsigned int* rand
     unsigned int k, i;
     for (k = 0; k < 3; ++k) {
         unsigned char mask2 = ( (randomNumbers[0] >> ( k* 8) ) & 255 );
-        unsigned char mask1 = ( ( SV >> (k * 8) ) & 255 ); // De ce 2 - k ? Pentru ca BGR
+        unsigned char mask1 = ( ( SV >> (k * 8) ) & 255 );
         image[k] = image[k] ^ mask1 ^ mask2;
     }
     for (i = 1; i < size; ++i) {
@@ -72,6 +72,8 @@ void xor_decryption (unsigned char* image, unsigned int size, unsigned int* rand
         image[k] = image[k] ^ mask1 ^ mask2;
     }
 }
+
+
 unsigned int* invert_permutation (unsigned int *permutation, unsigned int size) {
     unsigned int* newPermutation = (unsigned int *) malloc(sizeof(unsigned int) * size);
     for (unsigned int i = 0; i < size; ++i)
@@ -79,14 +81,16 @@ unsigned int* invert_permutation (unsigned int *permutation, unsigned int size) 
     return newPermutation;
 }
 
-int encrypt(char *sourceFileName, char *destinationFileName, char *keyFileName) {
+
+int encrypt (char *sourceFileName, char *destinationFileName, char *keyFileName) {
     unsigned char *header, *image;
     unsigned int W, H, seed, SV;
-    image = read_linearize(sourceFileName, &header, &W, &H); // BGR
+    image = read_linearize(sourceFileName, &header, &W, &H);
     if (image == NULL) {
         printf("\nImaginea de criptat nu a fost gasita");
         return -1;
     }
+
     double *chiSquared = chi_squared(sourceFileName);
     printf("%f %f %f \n", chiSquared[2], chiSquared[1], chiSquared[0]);
     FILE *fin = fopen(keyFileName, "r");
@@ -95,6 +99,7 @@ int encrypt(char *sourceFileName, char *destinationFileName, char *keyFileName) 
         return -1;
     }
     fscanf(fin, "%u %u", &seed, &SV);
+    fclose(fin);
     unsigned int *randomNumbers;
     randomNumbers = xorshift32(seed, 2 * W * H - 1);
     unsigned int *randomPermutation;
@@ -109,6 +114,7 @@ int encrypt(char *sourceFileName, char *destinationFileName, char *keyFileName) 
     save_image(destinationFileName, image, W, H, header);
     chiSquared = chi_squared(destinationFileName);
     printf("%f %f %f \n", chiSquared[2], chiSquared[1], chiSquared[0]);
+    free(header);
     free(image);
     free(chiSquared);
     free(randomNumbers);
@@ -117,18 +123,18 @@ int encrypt(char *sourceFileName, char *destinationFileName, char *keyFileName) 
 
 
 
-int decrypt(char *sourceFileName, char *destinationFileName, char *keyFileName) {
+int decrypt (char *sourceFileName, char *destinationFileName, char *keyFileName) {
     unsigned char *header, *image;
     unsigned int W, H, seed, SV;
     image = read_linearize(sourceFileName, &header, &W, &H); // BGR
     if (image == NULL) {
         printf("\nImaginea de criptat nu a fost gasita");
-        return -1;
+        return 1;
     }
     FILE *fin = fopen(keyFileName, "r");
     if (fin == NULL) {
         printf("\nCheia secreta nu a fost gasita");
-        return -1;
+        return 1;
     }
     fscanf(fin, "%u %u", &seed, &SV);
     unsigned int *randomNumbers;
@@ -139,9 +145,11 @@ int decrypt(char *sourceFileName, char *destinationFileName, char *keyFileName) 
     unsigned int *inversePermutation = invert_permutation(randomPermutation, W * H);
     unsigned char *newImage = permute_image_by_permutation(image, inversePermutation, W * H);
     free(randomPermutation);
+    free(inversePermutation);
     free(image);
     image = newImage;
     save_image(destinationFileName, image, W, H, header);
+    free(header);
     free(randomNumbers);
     free(image);
     return 0;
