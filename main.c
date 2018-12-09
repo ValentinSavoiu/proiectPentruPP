@@ -56,10 +56,10 @@ int main() {
     free(secretKey);
 
 
-    printf("Introduceti numele imaginii in care caut sabloane :"); //citiri
+    printf("\nIntroduceti numele imaginii in care caut sabloane :"); //citiri
     char *detectionSource = (char*) malloc(30 * sizeof(char));
     scanf("%s30", detectionSource);
-    printf("Introduceti numele imaginii in care salvez imaginea modificata :");
+    printf("\nIntroduceti numele imaginii in care salvez imaginea modificata :");
     char *detectionDestination = (char*) malloc(30 * sizeof(char));
     scanf("%s30", detectionDestination);
 
@@ -70,8 +70,8 @@ int main() {
     else {
         printf("\nEroare la modificare!");
     }
-
-
+    fclose(stdout);
+    fclose(stdin);
     free(detectionDestination);
     free(detectionSource);
     return 0;
