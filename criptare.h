@@ -15,7 +15,7 @@ double* chi_squared (char* fileName) {
     unsigned char *header;
     unsigned char *image = read_linearize(fileName, &header, &W, &H);
     unsigned int size = W * H;
-
+    free(header);
     unsigned int **frecv;
     frecv = (unsigned int **) malloc (3 * sizeof(unsigned int *));
 
@@ -33,7 +33,9 @@ double* chi_squared (char* fileName) {
             chiSquared[k] += ( (f * f) / fmedie);
         }
     }
-    free (image);
+    free(image);
+    for (unsigned int i = 0; i< 3; ++i)
+        free(frecv[i]);
     free (frecv);
     return chiSquared;
 
@@ -88,15 +90,17 @@ int encrypt (char *sourceFileName, char *destinationFileName, char *keyFileName)
     image = read_linearize(sourceFileName, &header, &W, &H);
     if (image == NULL) {
         printf("\nImaginea de criptat nu a fost gasita");
-        return -1;
+        return 1;
     }
 
     double *chiSquared = chi_squared(sourceFileName);
     printf("%f %f %f \n", chiSquared[2], chiSquared[1], chiSquared[0]);
+    free(chiSquared);
     FILE *fin = fopen(keyFileName, "r");
     if (fin == NULL) {
+    	free(image);
         printf("\nCheia secreta nu a fost gasita");
-        return -1;
+        return 1;
     }
     fscanf(fin, "%u %u", &seed, &SV);
     fclose(fin);
@@ -131,12 +135,16 @@ int decrypt (char *sourceFileName, char *destinationFileName, char *keyFileName)
         printf("\nImaginea de criptat nu a fost gasita");
         return 1;
     }
+    
     FILE *fin = fopen(keyFileName, "r");
     if (fin == NULL) {
+    	free(image);
         printf("\nCheia secreta nu a fost gasita");
         return 1;
     }
     fscanf(fin, "%u %u", &seed, &SV);
+    fclose(fin);
+    
     unsigned int *randomNumbers;
     randomNumbers = xorshift32(seed, 2 * W * H - 1);
     xor_decryption(image, W * H, randomNumbers + W * H - 1, SV);
@@ -144,11 +152,14 @@ int decrypt (char *sourceFileName, char *destinationFileName, char *keyFileName)
     randomPermutation = make_random_permutation(randomNumbers, W * H);
     unsigned int *inversePermutation = invert_permutation(randomPermutation, W * H);
     unsigned char *newImage = permute_image_by_permutation(image, inversePermutation, W * H);
+    
     free(randomPermutation);
     free(inversePermutation);
     free(image);
+    
     image = newImage;
     save_image(destinationFileName, image, W, H, header);
+    
     free(header);
     free(randomNumbers);
     free(image);
