@@ -69,7 +69,7 @@ double compute_standard_deviation (pixel **image, unsigned int x, unsigned int y
             stdDev = stdDev + (image[i][j].grey - avg) * (image[i][j].grey - avg);
         }
     }
-    return sqrt(stdDev / (W * H - 1));
+    return (double) sqrt( stdDev / (W * H - 1));
 }
 
 
@@ -176,13 +176,22 @@ int modify (char *detectionSource, char *detectionDestination) {
         printf("\nIntroduceti calea sablonului numarul %d :", i + 1);
         scanf("%s30", templateFile);
         templates[i] = read_as_matrix(templateFile, &aux, &tempWidth[i], &tempHeight[i]);
+        free(aux);
         if (templates[i] == NULL) {
+            for(unsigned int j = 0; j < i; ++j) {
+                for (unsigned int k = 0; k < tempHeight[j]; ++k)
+                    free(templates[j][k]);
+                free(templates[j]);
+            }    
             free(templates);
             free(tempHeight);
             free(tempWidth);
             free(det);
             free(templateFile);
-            printf("\nSablonul numarul %d nu a fost gasit", &i);
+            for(unsigned int i = 0; i < H; ++i)
+	            free(image[i]);
+            free(image);
+            printf("\nSablonul numarul %d nu a fost gasit", i);
             return 1;
         }
     }
@@ -194,6 +203,14 @@ int modify (char *detectionSource, char *detectionDestination) {
         unsigned int auxSize = 0;
         detection *detAux = detections(image, W, H, templates[i], tempWidth[i], tempHeight[i], tempAverage, tempStdDev, &auxSize, i);
         if (detAux == NULL) {
+            for(unsigned int j = 0; j < tempNumber; ++j) {
+                for (unsigned int k = 0; k < tempHeight[j]; ++k)
+                    free(templates[j][k]);
+                free(templates[j]);
+            }    
+            for(unsigned int i = 0; i < H; ++i)
+	            free(image[i]);
+            free(image);
             free(templates);
             free(tempHeight);
             free(tempWidth);
@@ -205,6 +222,14 @@ int modify (char *detectionSource, char *detectionDestination) {
             if (!auxx)
             {
                 free (detAux);
+                for(unsigned int j = 0; j < tempNumber; ++j) {
+                     for (unsigned int k = 0; k < tempHeight[j]; ++k)
+                         free(templates[j][k]);
+                     free(templates[j]);
+                }    
+                for(unsigned int i = 0; i < H; ++i)
+	                free(image[i]);
+                free(image);
                 free(templates);
                 free(tempHeight);
                 free(tempWidth);
@@ -219,6 +244,11 @@ int modify (char *detectionSource, char *detectionDestination) {
         detNumber +=auxSize;
         free (detAux);
     }
+    for(unsigned int j = 0; j < tempNumber; ++j) {
+        for (unsigned int k = 0; k < tempHeight[j]; ++k)
+            free(templates[j][k]);
+        free(templates[j]);
+    }    
     free(templates);
     free(tempHeight);
     free(tempWidth);
@@ -229,8 +259,12 @@ int modify (char *detectionSource, char *detectionDestination) {
 
 
     draw(image, det, detNumber, colors);
+    free(colors);
     free(det);
     save_image_matrix(detectionDestination, image, W, H, header);
+    free(header);
+    for(unsigned int i = 0; i < H; ++i)
+	    free(image[i]);
     free(image);
     return 0;
 }
