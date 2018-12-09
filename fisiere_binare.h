@@ -5,7 +5,7 @@
 void save_image (char *, unsigned char *, unsigned int , unsigned int , unsigned char* );*/
 
 typedef struct {
-    unsigned int r, b, g, grey;
+    unsigned char r, b, g, grey;
 }pixel;
 
 unsigned char* read_linearize(char *fileName, unsigned char **header, unsigned int *W, unsigned int *H) {
@@ -39,7 +39,7 @@ unsigned char* read_linearize(char *fileName, unsigned char **header, unsigned i
 }
 
 
-pixel **read_as_matrix(char *fileName, unsigned char **header, unsigned int *W, unsigned int *H) {
+pixel** read_as_matrix(char *fileName, unsigned char **header, unsigned int *W, unsigned int *H) {
 	FILE *fin = fopen(fileName, "rb");
     if (fin == NULL) {
         return NULL;
