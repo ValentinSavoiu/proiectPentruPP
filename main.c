@@ -70,8 +70,6 @@ int main() {
     else {
         printf("\nEroare la modificare!");
     }
-    fclose(stdout);
-    fclose(stdin);
     free(detectionDestination);
     free(detectionSource);
     return 0;
