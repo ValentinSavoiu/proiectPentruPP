@@ -16,6 +16,11 @@ unsigned char* read_linearize(char *fileName, unsigned char **header, unsigned i
 
 
     *header = (unsigned char *) malloc(HEADER_SIZE * sizeof(unsigned char));
+    if (!(*header)) {
+        printf ("\nMemorie insuficienta");
+        fclose(fin);
+        return NULL;
+    }
     fread(*header, sizeof(unsigned char), HEADER_SIZE, fin);
     fseek(fin, 18, SEEK_SET);
     fread(W, sizeof(unsigned int), 1, fin);
@@ -28,10 +33,15 @@ unsigned char* read_linearize(char *fileName, unsigned char **header, unsigned i
         padding = 0;
 
     unsigned char *v = (unsigned char *) calloc( (*W) * (*H) * 3, sizeof(unsigned char));
+    if (!v) {
+        free(*header);
+        fclose(fin);
+        printf("\nMemorie insuficienta");
+        return NULL;
+    }
     fseek (fin, 54, SEEK_SET);
     for (unsigned int i = 0; i < (*H); ++i) {
         fread(v + (*H - i - 1)* 3 * (*W), sizeof(unsigned char), 3 * (*W), fin);
-        //fread(v + 3 * i * (*W), sizeof(unsigned char), 3 * (*W), fin);
         fseek(fin, padding * sizeof(unsigned char), SEEK_CUR);
     }
     fclose(fin);
@@ -45,6 +55,11 @@ pixel** read_as_matrix(char *fileName, unsigned char **header, unsigned int *W, 
         return NULL;
     }
     *header = (unsigned char *) malloc(HEADER_SIZE * sizeof(unsigned char));
+    if (!(*header)) {
+        printf ("\nMemorie insuficienta");
+        fclose(fin);
+        return NULL;
+    }
     fread(*header, sizeof(unsigned char), HEADER_SIZE, fin);
     fseek(fin, 18, SEEK_SET);
     fread(W, sizeof(unsigned int), 1, fin);
@@ -56,8 +71,25 @@ pixel** read_as_matrix(char *fileName, unsigned char **header, unsigned int *W, 
         padding = 0;
     pixel **v;
     v = (pixel **) malloc ((*H) * sizeof(pixel*));
+    if (!v) { //eliberari memorie
+        free(v);
+        free(*header);
+        printf ("\nMemorie insuficienta");
+        fclose(fin);
+        return NULL;
+    }
     for(unsigned int i = 0; i < *H; ++i) {
         v[i] = (pixel *) malloc ((*W) * sizeof(pixel));
+        if( !v[i]) {    //eliberari memorie
+            for (unsigned int j = 0; j < i; ++j)
+                free(v[i]);
+            free(v);
+            fclose(fin);
+            free(*header);
+            printf ("\nMemorie insuficienta");
+            return NULL;
+
+        }
     }
     fseek (fin, 54, SEEK_SET);
     for (unsigned int i = 0; i < (*H); ++i) {
