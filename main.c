@@ -7,14 +7,23 @@
 #include "modificare_imagine.h"
 
 int main() {
-    printf("Introduceti numele imaginii de criptat :"); //citiri
+
     char *encryptionSource = (char*) malloc(30 * sizeof(char));
+    char *encryptionDestination = (char*) malloc(30 * sizeof(char));
+    char *secretKey = (char*) malloc(30 * sizeof(char));;
+    if (!encryptionDestination || !encryptionSource || !secretKey) {
+        free(encryptionDestination);
+        free(encryptionSource);
+        free(secretKey);
+        printf ("Nu am putut aloca 90 de octeti. Va rog sa nu rulati acesti program pe un prajitor de paine");
+        return 0;
+    }
+
+    printf("Introduceti numele imaginii de criptat :"); //citiri
     scanf("%s30", encryptionSource);
     printf("\nIntroduceti numele  fisierului in care va fi salvata imaginea criptata :");
-    char *encryptionDestination = (char*) malloc(30 * sizeof(char));
     scanf("%s30", encryptionDestination);
     printf("\nIntroduceti numele  fisierului in care se afla cele 2 chei secrete:");
-    char *secretKey = (char*) malloc(30 * sizeof(char));;
     scanf("%s30", secretKey);
 
 
@@ -31,14 +40,23 @@ int main() {
     free(encryptionSource);
     free(secretKey);
 
-    printf("\nIntroduceti numele imaginii de decriptat :"); //citiri
     char *decryptionSource = (char*) malloc(30 * sizeof(char));
+    char *decryptionDestination = (char*) malloc(30 * sizeof(char));
+    secretKey = (char*) malloc(30 * sizeof(char));
+
+    if (!decryptionDestination || !decryptionSource || !secretKey) {
+        free(decryptionDestination);
+        free(decryptionSource);
+        free(secretKey);
+        printf ("\nNu am putut aloca 90 de octeti. Va rog sa nu rulati acesti program pe un prajitor de paine");
+        return 0;
+    }
+
+    printf("\nIntroduceti numele imaginii de decriptat :"); //citiri
     scanf("%s30", decryptionSource);
     printf("\nIntroduceti numele  fisierului in care va fi salvata imaginea decriptata :");
-    char *decryptionDestination = (char*) malloc(30 * sizeof(char));
     scanf("%s30", decryptionDestination);
     printf("\nIntroduceti numele  fisierului in care se afla cele 2 chei secrete, aceleasi chei folosite pentru criptarea initiala a imaginii :");
-    secretKey = (char*) malloc(30 * sizeof(char));
     scanf("%s30", secretKey);
 
 
@@ -55,12 +73,17 @@ int main() {
     free(decryptionDestination);
     free(secretKey);
 
+    char *detectionSource = (char*) malloc(30 * sizeof(char));
+    char *detectionDestination = (char*) malloc(30 * sizeof(char));
+    if (!detectionDestination || !detectionSource) {
+        free(detectionDestination);
+        free(detectionSource);
+         printf ("\nNu am putut aloca 90 de octeti. Va rog sa nu rulati acesti program pe un prajitor de paine");
+    }
 
     printf("\nIntroduceti numele imaginii in care caut sabloane :"); //citiri
-    char *detectionSource = (char*) malloc(30 * sizeof(char));
     scanf("%s30", detectionSource);
     printf("\nIntroduceti numele imaginii in care salvez imaginea modificata :");
-    char *detectionDestination = (char*) malloc(30 * sizeof(char));
     scanf("%s30", detectionDestination);
 
     ok = modify(detectionSource, detectionDestination);
