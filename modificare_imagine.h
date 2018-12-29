@@ -90,6 +90,11 @@ detection* detections (pixel** image, unsigned int imageW, unsigned int imageH, 
     double crossCorr = 0;
     *size = 0;
     detection *det = (detection*) malloc(2000 * sizeof(detection));
+    if (!det) {
+        printf ("\nMemorie insuficienta");
+        *size = 1<<30;
+        return NULL;
+    }
     for (unsigned int i = 0; i < imageH - tempH; ++i)
         for (unsigned int j = 0; j < imageW - tempW; ++j) {
 
@@ -115,13 +120,14 @@ detection* detections (pixel** image, unsigned int imageW, unsigned int imageH, 
                 if ((*size) % 2000 || (*size) == 0)
                     det[*size] = aux;
                 else {
-                    detection *auxx = realloc (det, (*size) + 2000);
+                    detection *auxx = realloc (det, (*size) + 2000 * sizeof(detection));
                     if (auxx) {
                         det = auxx;
                         det[*size] = aux;
                     }
                     else {
                         printf("\nMemorie insuficienta");
+                        free(det);
                         return NULL;
                     }
 
@@ -154,6 +160,10 @@ int modify (char *detectionSource, char *detectionDestination) {
     unsigned char *header, *aux;
     unsigned int *tempWidth, *tempHeight, detNumber = 0;
     detection *det = (detection*) malloc(10000 * sizeof(detection));
+    if (!det) {
+        printf("\nMemorie insuficienta");
+        return 1;
+    }
     char *templateFile;
     pixel **image = read_as_matrix(detectionSource, &header, &W, &H); //citesc imaginea
     if (image == NULL) {  //indiferent cum ies din program, ma asigur ca toata memoria este eliberata
@@ -164,25 +174,42 @@ int modify (char *detectionSource, char *detectionDestination) {
 
 
 
-    printf ("\nIntroduceti numarul de sabloane :");
-    scanf ("%d", &tempNumber);
+    printf("\nIntroduceti numarul de sabloane :");
+    scanf("%u", &tempNumber);
+    while (tempNumber > 10) {
+        printf("\nCel mult 10 sabloane. Introduceti numarul de sabloane :");
+        scanf("%u", &tempNumber);
+    }
     pixel ***templates = (pixel ***) malloc(tempNumber * sizeof(pixel **));  //citesc sabloanele
-
     templateFile = (char *) malloc(30 * sizeof(char));
     tempWidth = (unsigned int *) malloc(tempNumber * sizeof(unsigned int));
     tempHeight = (unsigned int *) malloc(tempNumber * sizeof(unsigned int));
+
+    if (!templates || !templateFile || !tempHeight || !tempWidth) {
+        if(templates) free(templates);
+        if(templateFile) free(templateFile);
+        if(tempHeight) free(tempHeight);
+        if(tempWidth) free(tempWidth);
+        for (unsigned int i = 0; i < H; ++i)
+            free(image[i]);
+        free(image);
+        printf("\nMemorie insuficienta");
+        return 1;
+    }
 
     for (unsigned int i = 0; i < tempNumber; ++i) {
         printf("\nIntroduceti calea sablonului numarul %d :", i + 1);
         scanf("%s30", templateFile);
         templates[i] = read_as_matrix(templateFile, &aux, &tempWidth[i], &tempHeight[i]);
         free(aux);
+
+
         if (templates[i] == NULL) {
             for(unsigned int j = 0; j < i; ++j) {
                 for (unsigned int k = 0; k < tempHeight[j]; ++k)
                     free(templates[j][k]);
                 free(templates[j]);
-            }    
+            }
             free(templates);
             free(tempHeight);
             free(tempWidth);
@@ -191,9 +218,10 @@ int modify (char *detectionSource, char *detectionDestination) {
             for(unsigned int i = 0; i < H; ++i)
 	            free(image[i]);
             free(image);
-            printf("\nSablonul numarul %d nu a fost gasit", i);
+            printf("\nSablonul numarul %d nu a fost gasit", i + 1);
             return 1;
         }
+
     }
     free(templateFile);
 
@@ -202,12 +230,14 @@ int modify (char *detectionSource, char *detectionDestination) {
         double tempStdDev = compute_standard_deviation(templates[i], 0, 0, tempWidth[i], tempHeight[i], tempAverage);
         unsigned int auxSize = 0;
         detection *detAux = detections(image, W, H, templates[i], tempWidth[i], tempHeight[i], tempAverage, tempStdDev, &auxSize, i);
-        if (detAux == NULL) {
+
+
+        if (auxSize == 1<<30) {
             for(unsigned int j = 0; j < tempNumber; ++j) {
                 for (unsigned int k = 0; k < tempHeight[j]; ++k)
                     free(templates[j][k]);
                 free(templates[j]);
-            }    
+            }
             for(unsigned int i = 0; i < H; ++i)
 	            free(image[i]);
             free(image);
@@ -217,8 +247,11 @@ int modify (char *detectionSource, char *detectionDestination) {
             free(det);
             return 1;
         }
+
+
         if( (detNumber + auxSize) / 10000 > detNumber / 10000) {
             detection *auxx = realloc(detAux, (detNumber + auxSize + 10000) * sizeof(detection));
+
             if (!auxx)
             {
                 free (detAux);
@@ -226,7 +259,7 @@ int modify (char *detectionSource, char *detectionDestination) {
                      for (unsigned int k = 0; k < tempHeight[j]; ++k)
                          free(templates[j][k]);
                      free(templates[j]);
-                }    
+                }
                 for(unsigned int i = 0; i < H; ++i)
 	                free(image[i]);
                 free(image);
@@ -237,6 +270,7 @@ int modify (char *detectionSource, char *detectionDestination) {
                 printf("\nMemorie insuficienta");
                 return 1;
             }
+
             det = auxx;
         }
         for(unsigned int j = detNumber; j < detNumber + auxSize; ++j)
@@ -244,11 +278,12 @@ int modify (char *detectionSource, char *detectionDestination) {
         detNumber +=auxSize;
         free (detAux);
     }
+
     for(unsigned int j = 0; j < tempNumber; ++j) {
         for (unsigned int k = 0; k < tempHeight[j]; ++k)
             free(templates[j][k]);
         free(templates[j]);
-    }    
+    }
     free(templates);
     free(tempHeight);
     free(tempWidth);
